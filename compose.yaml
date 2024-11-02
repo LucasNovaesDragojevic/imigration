@@ -1,9 +1,9 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: postgres:alpine
     environment:
-      - 'POSTGRES_DB=mydatabase'
-      - 'POSTGRES_PASSWORD=secret'
-      - 'POSTGRES_USER=myuser'
+      POSTGRES_DB:       imigration
+      POSTGRES_USER:     imigration
+      POSTGRES_PASSWORD: imigration
     ports:
-      - '5432'
+      - 5432:5432

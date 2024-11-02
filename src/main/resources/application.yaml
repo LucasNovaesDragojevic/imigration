@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: api
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    url: jdbc:postgresql://localhost:5432/imigration
+    username: imigration
+    password: imigration
+    hikari:
+      schema: imigration
