@@ -3,10 +3,12 @@ spring:
     name: api
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: ${IMIGRATION_DDL_AUTO}
   datasource:
-    url: jdbc:postgresql://localhost:5432/imigration
-    username: imigration
-    password: imigration
+    url: ${IMIGRATION_DATASOURCE_URL}
+    username: ${IMIGRATION_DATASOURCE_USERNAME}
+    password: ${IMIGRATION_DATASOURCE_PASSWORD}
     hikari:
-      schema: imigration
+      schema: ${IMIGRATION_DATASOURCE_SCHEMA}
+jwt:
+  secret: ${IMIGRATION_JWT_SECRET}

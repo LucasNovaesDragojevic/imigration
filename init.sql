@@ -1,0 +1,1 @@
+CREATE SCHEMA imigration AUTHORIZATION imigration;

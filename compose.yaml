@@ -5,5 +5,7 @@ services:
       POSTGRES_DB:       imigration
       POSTGRES_USER:     imigration
       POSTGRES_PASSWORD: imigration
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - 5432:5432
