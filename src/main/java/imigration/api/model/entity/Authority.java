@@ -1,7 +1,8 @@
-package imigration.api.model;
+package imigration.api.model.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
+import imigration.api.model.enums.AuthorityName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

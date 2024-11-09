@@ -1,4 +1,4 @@
-package imigration.api.model;
+package imigration.api.model.enums;
 
 public enum AuthorityName {
 

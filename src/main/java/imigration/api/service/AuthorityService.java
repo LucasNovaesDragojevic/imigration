@@ -4,8 +4,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Service;
 
-import imigration.api.model.Authority;
-import imigration.api.model.AuthorityName;
+import imigration.api.model.entity.Authority;
+import imigration.api.model.enums.AuthorityName;
 import imigration.api.repository.AuthorityRepository;
 
 @Service

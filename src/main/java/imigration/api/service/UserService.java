@@ -2,7 +2,7 @@ package imigration.api.service;
 
 import org.springframework.stereotype.Service;
 
-import imigration.api.model.User;
+import imigration.api.model.entity.User;
 import imigration.api.repository.UserRepository;
 
 @Service

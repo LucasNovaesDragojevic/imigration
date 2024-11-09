@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import imigration.api.model.Authority;
-import imigration.api.model.JwtResponse;
-import imigration.api.model.SignRequest;
-import imigration.api.model.User;
+import imigration.api.model.entity.Authority;
+import imigration.api.model.entity.User;
+import imigration.api.model.request.SignRequest;
+import imigration.api.model.response.JwtResponse;
 import imigration.api.service.AuthorityService;
 import imigration.api.service.JwtService;
 import imigration.api.service.UserService;

@@ -9,11 +9,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import imigration.api.filter.AuthFilter;
+import imigration.api.model.enums.AuthorityName;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
     
+    private final AuthFilter authFilter;
+
+    public SecurityConfiguration(final AuthFilter authFilter) {
+        this.authFilter = authFilter;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity httpSecurity) throws Exception {
         httpSecurity
@@ -21,8 +31,11 @@ public class SecurityConfiguration {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(request -> request
             .requestMatchers(HttpMethod.POST, "/signup").permitAll()
-            .requestMatchers(HttpMethod.POST, "/signin").permitAll());
-
+            .requestMatchers(HttpMethod.POST, "/signin").permitAll()
+            .requestMatchers(HttpMethod.POST, "/processes").hasAuthority(AuthorityName.PROCESS_CREATE.name())
+            .anyRequest().authenticated()
+        )
+        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
 
