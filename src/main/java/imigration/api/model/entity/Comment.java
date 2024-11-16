@@ -14,6 +14,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,20 +29,30 @@ public class Comment {
     @GeneratedValue
     private Integer id;
 
+    @Getter
+    @Column(nullable = false, updatable = false)
     @CreatedDate
     private Instant createdAt;
 
     @LastModifiedDate
     private Instant lastModifiedDate;
 
+    @Getter
+    @Setter
+    @ManyToOne(optional = false)
+    private User owner;
+
+    @Getter
     @Setter
     @Column(nullable = false)
     private String content;
 
+    @Getter
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "comment_id", nullable = false, updatable = false)
     private List<Attachment> attachments = new ArrayList<>();
 
-    public void addAttachment(final List<Attachment> attachments) {
+    public void addAttachments(final List<Attachment> attachments) {
         this.attachments.addAll(attachments);
     }
 }

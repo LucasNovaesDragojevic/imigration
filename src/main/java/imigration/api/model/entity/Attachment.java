@@ -11,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @EntityListeners(AuditingEntityListener.class)
 public class Attachment {
 
+    @Getter
     @Id
     @GeneratedValue
     private Integer id;

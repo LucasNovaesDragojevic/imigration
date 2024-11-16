@@ -19,6 +19,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +42,10 @@ public class Process {
     @LastModifiedDate
     @Column(nullable = false)
     private Instant lastModifiedDate;
+
+    @Setter
+    @ManyToOne(optional = false)
+    private User owner;
 
     @Getter
     @Setter
@@ -72,6 +78,7 @@ public class Process {
     
     @Getter
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "process_id", nullable = false, updatable = false)
     private List<Comment> comments = new ArrayList<>();
 
     public void addComment(final Comment comment) {

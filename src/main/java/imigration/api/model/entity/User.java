@@ -14,6 +14,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -23,6 +24,7 @@ import lombok.ToString;
 @ToString
 public class User implements UserDetails {
 
+    @Getter
     @Id
     @GeneratedValue
     private Integer id;
