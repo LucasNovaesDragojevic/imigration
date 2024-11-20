@@ -1,22 +1,17 @@
 package imigration.api.model.entity;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -48,11 +43,16 @@ public class Comment {
     private String content;
 
     @Getter
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "comment_id", nullable = false, updatable = false)
-    private List<Attachment> attachments = new ArrayList<>();
+    @Setter
+    @ManyToOne(optional = false)
+    private Process process;
 
-    public void addAttachments(final List<Attachment> attachments) {
-        this.attachments.addAll(attachments);
-    }
+    // @Getter
+    // @OneToMany(cascade = CascadeType.ALL)
+    // @JoinColumn(name = "comment_id", nullable = false, updatable = false)
+    // private List<Attachment> attachments = new ArrayList<>();
+
+    // public void addAttachments(final List<Attachment> attachments) {
+    //     this.attachments.addAll(attachments);
+    // }
 }

@@ -20,7 +20,7 @@ public record ProcessResponse(
     String driverLicense,
     List<Integer> comments
 ) {
-    public ProcessResponse(final Process process) {
+    public ProcessResponse(final Process process, final Comment comment) {
         this(process.getId(), 
                 process.getCreatedAt(), 
                 process.getStep(), 
@@ -29,6 +29,18 @@ public record ProcessResponse(
                 process.getPassport(),
                 process.getGovId(), 
                 process.getDriverLicense(),
-                process.getComments().stream().map(Comment::getId).toList());
+                List.of(comment.getId()));
+    }
+
+    public ProcessResponse(final Process process, final List<Comment> comments) {
+        this(process.getId(), 
+                process.getCreatedAt(), 
+                process.getStep(), 
+                process.getNationality(), 
+                process.getDateBirth(), 
+                process.getPassport(),
+                process.getGovId(), 
+                process.getDriverLicense(),
+                comments.stream().map(Comment::getId).toList());
     }
 }

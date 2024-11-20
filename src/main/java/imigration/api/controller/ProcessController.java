@@ -18,6 +18,8 @@ import imigration.api.model.request.ProcessRequest;
 import imigration.api.model.response.CommentResponse;
 import imigration.api.model.response.ProcessMinimalResponse;
 import imigration.api.model.response.ProcessResponse;
+import imigration.api.service.AttachmentService;
+import imigration.api.service.CommentService;
 import imigration.api.service.ProcessService;
 import imigration.api.service.UserService;
 import jakarta.validation.Valid;
@@ -27,17 +29,27 @@ import jakarta.validation.Valid;
 public class ProcessController {
 
     private final ProcessService processService;
+    private final CommentService commentService;
+    private final AttachmentService attachmentService;
     private final UserService userService;
 
     public ProcessController(final ProcessService processService,
+                             final CommentService commentService,
+                             final AttachmentService attachmentService,
                              final UserService userService) {
         this.processService = processService;
+        this.commentService = commentService;
+        this.attachmentService = attachmentService;
         this.userService = userService;
     }
 
     @PostMapping
-    public ProcessResponse post(@RequestBody @Valid final ProcessRequest processRequest) {
-        return processService.post(processRequest, userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
+    public ProcessResponse create(@RequestBody @Valid final ProcessRequest processRequest) {
+        final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var process = processService.create(processRequest, owner);
+        final var comment = commentService.create(process, owner, processRequest.comment());
+        attachmentService.create(owner, comment, processRequest.comment().attachments());
+        return new ProcessResponse(process, comment);
     }
 
     @GetMapping
@@ -52,7 +64,14 @@ public class ProcessController {
 
     @PostMapping("{id}/comments")
     public CommentResponse createComment(@PathVariable("id") final Integer id, @RequestBody @Valid final CommentRequest commentRequest) {
-        return new CommentResponse(processService.createComment(id, userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()), commentRequest));
+        final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var comment = commentService.create(processService.findById(id), owner, commentRequest);
+        final var attachments = attachmentService.create(owner, comment, commentRequest.attachments());
+        return new CommentResponse(comment, attachments);
     }
     
+    @GetMapping("{id}/comments")
+    public Page<CommentResponse> findAllProcessId(@PathVariable("id") final Integer id, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) {
+        return processService.findAllByProcessId(id, pageable);
+    }
 }

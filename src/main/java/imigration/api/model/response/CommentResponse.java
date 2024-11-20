@@ -14,10 +14,10 @@ public record CommentResponse(
     List<Integer> attachments
 ) {
 
-    public CommentResponse(final Comment comment) {
+    public CommentResponse(final Comment comment, final List<Attachment> attachments) {
         this(LocalDateTime.ofInstant(comment.getCreatedAt(), ZoneId.systemDefault()), 
                 comment.getOwner().getId(), 
-                comment.getContent(), 
-                comment.getAttachments().stream().map(Attachment::getId).toList());
+                comment.getContent(),
+                attachments.stream().map(Attachment::getId).toList());
     }
 }

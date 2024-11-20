@@ -11,8 +11,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @Entity
@@ -30,10 +32,18 @@ public class Attachment {
     @LastModifiedDate
     private Instant lastModifiedDate;
 
+    @Getter
+    @Setter
     @Column(nullable = false)
     private String content;
 
-    public Attachment(final String content) {
+    @Getter
+    @Setter
+    @ManyToOne(optional = false)
+    private Comment comment;
+
+    public Attachment(final String content, final Comment comment) {
         this.content = content;
+        this.comment = comment;
     }
 }
