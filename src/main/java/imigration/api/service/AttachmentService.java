@@ -21,4 +21,8 @@ public class AttachmentService {
     public List<Attachment> create(final User owner, final Comment comment, final List<String> attachmentsContents) {
         return attachmentRepository.saveAll(attachmentsContents.stream().map(content -> new Attachment(content, comment)).toList());
     }
+
+    public List<Attachment> readAllByComment(final Integer commentId) {
+        return attachmentRepository.findAllByCommentId(commentId);
+    }
 }

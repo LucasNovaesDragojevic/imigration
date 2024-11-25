@@ -8,6 +8,7 @@ import imigration.api.model.entity.Attachment;
 import imigration.api.model.entity.Comment;
 
 public record CommentResponse(
+    Integer id,
     LocalDateTime createAt, 
     Integer owner, 
     String content, 
@@ -15,7 +16,8 @@ public record CommentResponse(
 ) {
 
     public CommentResponse(final Comment comment, final List<Attachment> attachments) {
-        this(LocalDateTime.ofInstant(comment.getCreatedAt(), ZoneId.systemDefault()), 
+        this(comment.getId(),
+                LocalDateTime.ofInstant(comment.getCreatedAt(), ZoneId.systemDefault()), 
                 comment.getOwner().getId(), 
                 comment.getContent(),
                 attachments.stream().map(Attachment::getId).toList());

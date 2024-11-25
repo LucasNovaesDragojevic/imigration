@@ -10,6 +10,6 @@ import imigration.api.model.entity.Attachment;
 @Repository
 public interface AttachmentRepository extends JpaRepository<Attachment, Integer> {
 
-    List<Attachment> findAllByCommentId(final Integer commentsId);
+    List<Attachment> findAllByCommentId(final Integer commentId);
 
 }

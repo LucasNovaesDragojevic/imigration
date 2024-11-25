@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import imigration.api.model.request.CommentRequest;
@@ -25,7 +24,6 @@ import imigration.api.service.UserService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("processes")
 public class ProcessController {
 
     private final ProcessService processService;
@@ -43,7 +41,7 @@ public class ProcessController {
         this.userService = userService;
     }
 
-    @PostMapping
+    @PostMapping("processes")
     public ProcessResponse create(@RequestBody @Valid final ProcessRequest processRequest) {
         final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         final var process = processService.create(processRequest, owner);
@@ -52,17 +50,17 @@ public class ProcessController {
         return new ProcessResponse(process, comment);
     }
 
-    @GetMapping
+    @GetMapping("processes")
     public Page<ProcessMinimalResponse> findAllByOwner(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) {
         return processService.findAllByOwner(pageable, userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 
-    @GetMapping("{id}")
+    @GetMapping("processes/{id}")
     public ProcessResponse findByIdAndOwner(@PathVariable("id") final Integer id) {
         return processService.findByIdAndOwner(id, userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
     }
 
-    @PostMapping("{id}/comments")
+    @PostMapping("processes/{id}/comments")
     public CommentResponse createComment(@PathVariable("id") final Integer id, @RequestBody @Valid final CommentRequest commentRequest) {
         final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
         final var comment = commentService.create(processService.findById(id), owner, commentRequest);
@@ -70,7 +68,7 @@ public class ProcessController {
         return new CommentResponse(comment, attachments);
     }
     
-    @GetMapping("{id}/comments")
+    @GetMapping("processes/{id}/comments")
     public Page<CommentResponse> findAllProcessId(@PathVariable("id") final Integer id, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) {
         return processService.findAllByProcessId(id, pageable);
     }
