@@ -41,16 +41,7 @@ public class ProcessService {
         process.setPassport(processRequest.passport());
         process.setGovId(processRequest.govId());
         process.setDriverLicense(processRequest.driverLicense());
-        // final var comment = new Comment();
-        // comment.setOwner(owner);
-        // comment.setProcess(process);
-        // comment.setContent(processRequest.comment().content());
-        // final var attachments = processRequest.comment().attachments().stream().map(Attachment::new).toList();
-        // attachments.forEach(a -> a.setComment(comment));
         processRepository.save(process);
-        // commentRepository.save(comment);
-        // attachmentRepository.saveAll(attachments);
-        // return new ProcessResponse(process, comment);
         return process;
     }
     
@@ -62,8 +53,12 @@ public class ProcessService {
         return new ProcessResponse(processRepository.findByIdAndOwner(id, owner).get(), commentRepository.findAllByProcessId(id));
     }
 
-    public Page<CommentResponse> findAllByProcessId(final Integer id, final Pageable pageable) {
-        final var comments = commentRepository.findAllByProcessId(id, pageable);
+    public Page<CommentResponse> findAllByProcessIdAndProcessOwnerId(
+        final Integer processId, 
+        final Integer processOwnerId,
+        final Pageable pageable
+    ) {
+        final var comments = commentRepository.findAllByProcessIdAndProcessOwnerId(processId, processOwnerId, pageable);
         return comments.map(c -> {
             final var attachments = attachmentRepository.findAllByCommentId(c.getId());
             return new CommentResponse(c, attachments);
@@ -72,5 +67,12 @@ public class ProcessService {
 
     public Process findById(final Integer id) {
         return processRepository.findById(id).get();
+    }
+
+    public Process findByIdAndOwnerId(
+        final Integer processId, 
+        final Integer ownerId
+    ) {
+        return processRepository.findByIdAndOwnerId(processId, ownerId).get();
     }
 }

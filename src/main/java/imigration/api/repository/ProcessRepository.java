@@ -17,4 +17,6 @@ public interface ProcessRepository extends JpaRepository<Process, Integer> {
 
     Optional<Process> findByIdAndOwner(final Integer id, final User owner);
 
+    Optional<Process> findByIdAndOwnerId(final Integer processId, final Integer ownerId);
+
 }

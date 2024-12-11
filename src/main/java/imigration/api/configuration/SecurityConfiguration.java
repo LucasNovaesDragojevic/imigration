@@ -35,11 +35,11 @@ public class SecurityConfiguration {
 
             .requestMatchers(HttpMethod.GET, "/processes").hasAuthority(AuthorityName.PROCESS_READ.name())
             .requestMatchers(HttpMethod.POST, "/processes").hasAuthority(AuthorityName.PROCESS_CREATE.name())
-            
+
             .requestMatchers(HttpMethod.GET, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_READ.name())
             .requestMatchers(HttpMethod.POST, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_CREATE.name())
             
-            .requestMatchers(HttpMethod.GET, "comments/{id}/attachments").hasAuthority(AuthorityName.COMMENT_READ.name())
+            .requestMatchers(HttpMethod.GET, "/comments/{id}/attachments").hasAuthority(AuthorityName.COMMENT_READ.name())
             .anyRequest().authenticated()
         )
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);

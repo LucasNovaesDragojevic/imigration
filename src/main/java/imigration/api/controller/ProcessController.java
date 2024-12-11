@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import imigration.api.model.entity.Authority;
+import imigration.api.model.entity.Comment;
+import imigration.api.model.enums.AuthorityName;
 import imigration.api.model.request.CommentRequest;
 import imigration.api.model.request.ProcessRequest;
 import imigration.api.model.response.CommentResponse;
@@ -51,25 +55,70 @@ public class ProcessController {
     }
 
     @GetMapping("processes")
-    public Page<ProcessMinimalResponse> findAllByOwner(@PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) {
-        return processService.findAllByOwner(pageable, userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
+    public Page<ProcessMinimalResponse> findAllByOwner(
+            @RequestParam(name = "owner", required = false) final Integer ownerId,
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable)
+    {
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (ownerId != null 
+            && !user.getId().equals(ownerId)
+            && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
+        {
+            return processService.findAllByOwner(pageable, userService.findById(ownerId));
+        }
+        return processService.findAllByOwner(pageable, user);
     }
 
     @GetMapping("processes/{id}")
-    public ProcessResponse findByIdAndOwner(@PathVariable("id") final Integer id) {
-        return processService.findByIdAndOwner(id, userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()));
+    public ProcessResponse findByIdAndOwner(
+        @RequestParam(name = "owner", required = false) final Integer ownerId,
+        @PathVariable("id") final Integer id)
+    {
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (ownerId != null 
+            && !user.getId().equals(ownerId)
+            && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
+        {
+            return processService.findByIdAndOwner(id, userService.findById(ownerId));
+        }
+        return processService.findByIdAndOwner(id, user);
     }
 
     @PostMapping("processes/{id}/comments")
-    public CommentResponse createComment(@PathVariable("id") final Integer id, @RequestBody @Valid final CommentRequest commentRequest) {
-        final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
-        final var comment = commentService.create(processService.findById(id), owner, commentRequest);
-        final var attachments = attachmentService.create(owner, comment, commentRequest.attachments());
+    public CommentResponse createComment(
+        @PathVariable("id") final Integer processId,
+        @RequestParam(name = "owner", required = false) final Integer ownerId,
+        @RequestBody @Valid final CommentRequest commentRequest)
+    {
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        Comment comment;
+        if (ownerId != null 
+            && !user.getId().equals(ownerId)
+            && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
+        {
+            comment = commentService.create(processService.findByIdAndOwnerId(processId, ownerId), user, commentRequest);
+        }
+        else 
+        {
+            comment = commentService.create(processService.findByIdAndOwnerId(processId, user.getId()), user, commentRequest);
+        }
+        final var attachments = attachmentService.create(user, comment, commentRequest.attachments());
         return new CommentResponse(comment, attachments);
     }
     
     @GetMapping("processes/{id}/comments")
-    public Page<CommentResponse> findAllProcessId(@PathVariable("id") final Integer id, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) {
-        return processService.findAllByProcessId(id, pageable);
+    public Page<CommentResponse> findAllByProcessIdAndOwnerId(
+        @PathVariable("id") final Integer processId,
+        @RequestParam(name = "owner", required = false) final Integer ownerId,
+        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) 
+    {
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (ownerId != null 
+            && !user.getId().equals(ownerId)
+            && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
+        {
+            return processService.findAllByProcessIdAndProcessOwnerId(processId, ownerId, pageable);
+        }
+        return processService.findAllByProcessIdAndProcessOwnerId(processId, user.getId(), pageable);
     }
 }

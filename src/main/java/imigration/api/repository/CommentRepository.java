@@ -12,7 +12,7 @@ import imigration.api.model.entity.Comment;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
 
-    Page<Comment> findAllByProcessId(final Integer processId, final Pageable pageable);
+    Page<Comment> findAllByProcessIdAndProcessOwnerId(final Integer processId, final Integer processOwnerId, final Pageable pageable);
     
     List<Comment> findAllByProcessId(final Integer processId);
 }

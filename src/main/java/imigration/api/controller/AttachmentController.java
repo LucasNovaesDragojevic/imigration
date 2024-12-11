@@ -18,7 +18,7 @@ public class AttachmentController {
         this.attachmentService = attachmentService;
     }
 
-    @GetMapping("comments/{id}/attachments")
+    @GetMapping("/comments/{id}/attachments")
     public List<AttachmentResponse> readAllByComment(@PathVariable final Integer id) {
         return attachmentService.readAllByComment(id).stream().map(AttachmentResponse::new).toList();
     }
