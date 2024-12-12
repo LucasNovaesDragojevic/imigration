@@ -8,6 +8,7 @@ import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +17,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @Entity
@@ -31,7 +33,12 @@ public class User implements UserDetails {
 
     private String username;
 
+    @Setter
     private String password;
+
+    @Setter
+    @Column(nullable = false)
+    private Boolean isEnabled = Boolean.FALSE;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private final Set<Authority> authorities = new HashSet<>();
@@ -55,5 +62,10 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.username;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.isEnabled;
     }
 }

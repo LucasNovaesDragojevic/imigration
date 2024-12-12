@@ -32,6 +32,9 @@ public class SecurityConfiguration {
         .authorizeHttpRequests(request -> request
             .requestMatchers(HttpMethod.POST, "/signup").permitAll()
             .requestMatchers(HttpMethod.POST, "/signin").permitAll()
+            .requestMatchers(HttpMethod.GET, "/email-verifications/{id}").permitAll()
+            .requestMatchers(HttpMethod.POST, "/passwords/recovery").permitAll()
+            .requestMatchers(HttpMethod.POST, "/passwords/reset/{id}").permitAll()
 
             .requestMatchers(HttpMethod.GET, "/processes").hasAuthority(AuthorityName.PROCESS_READ.name())
             .requestMatchers(HttpMethod.POST, "/processes").hasAuthority(AuthorityName.PROCESS_CREATE.name())

@@ -10,5 +10,13 @@ spring:
     password: ${IMIGRATION_DATASOURCE_PASSWORD}
     hikari:
       schema: ${IMIGRATION_DATASOURCE_SCHEMA}
+  mail:
+    host: smtp.example.com
+    port: 000
+    username: example@email.com
+    password: example
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
 jwt:
   secret: ${IMIGRATION_JWT_SECRET}

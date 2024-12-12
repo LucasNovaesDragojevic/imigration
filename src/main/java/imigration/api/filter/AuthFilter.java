@@ -36,9 +36,11 @@ public class AuthFilter extends OncePerRequestFilter {
         final var bearerHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (Objects.nonNull(bearerHeader)) {
             final var username = jwtService.validate(bearerHeader.replace("Bearer ", ""));
-            final var user = userService.findByUsername(username);
-            final var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            userService.findByUsername(username)
+                .ifPresent(u -> {
+                    final var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(u, null, u.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                });
         }
         filterChain.doFilter(request, response);
     }
