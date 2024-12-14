@@ -38,6 +38,7 @@ public class SecurityConfiguration {
 
             .requestMatchers(HttpMethod.GET, "/processes").hasAuthority(AuthorityName.PROCESS_READ.name())
             .requestMatchers(HttpMethod.POST, "/processes").hasAuthority(AuthorityName.PROCESS_CREATE.name())
+            .requestMatchers(HttpMethod.PATCH, "/processes/{id}").hasAuthority(AuthorityName.PROCESS_UPDATE.name())
 
             .requestMatchers(HttpMethod.GET, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_READ.name())
             .requestMatchers(HttpMethod.POST, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_CREATE.name())

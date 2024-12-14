@@ -5,13 +5,17 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.Comment;
@@ -21,6 +25,7 @@ import imigration.api.model.request.ProcessRequest;
 import imigration.api.model.response.CommentResponse;
 import imigration.api.model.response.ProcessMinimalResponse;
 import imigration.api.model.response.ProcessResponse;
+import imigration.api.model.update.ProcessUpdate;
 import imigration.api.service.AttachmentService;
 import imigration.api.service.CommentService;
 import imigration.api.service.ProcessService;
@@ -84,6 +89,21 @@ public class ProcessController {
         return processService.findByIdAndOwner(id, user);
     }
 
+    @PatchMapping("processes/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void updateProcess(
+        @PathVariable("id") final Integer processId,
+        @RequestBody @Valid final ProcessUpdate processUpdate
+    ) {
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+
+        if (user.getId().equals(processUpdate.owner()))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot review yourself process.");
+
+        if (user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
+            processService.updateProcess(processId, processUpdate);
+    }
+
     @PostMapping("processes/{id}/comments")
     public CommentResponse createComment(
         @PathVariable("id") final Integer processId,
@@ -96,11 +116,11 @@ public class ProcessController {
             && !user.getId().equals(ownerId)
             && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
         {
-            comment = commentService.create(processService.findByIdAndOwnerId(processId, ownerId), user, commentRequest);
+            comment = commentService.create(processService.findByIdAndOwnerId(processId, ownerId).get(), user, commentRequest);
         }
         else 
         {
-            comment = commentService.create(processService.findByIdAndOwnerId(processId, user.getId()), user, commentRequest);
+            comment = commentService.create(processService.findByIdAndOwnerId(processId, user.getId()).get(), user, commentRequest);
         }
         final var attachments = attachmentService.create(user, comment, commentRequest.attachments());
         return new CommentResponse(comment, attachments);

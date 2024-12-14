@@ -1,8 +1,13 @@
 package imigration.api.service;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import imigration.api.model.entity.Process;
 import imigration.api.model.entity.User;
@@ -11,6 +16,7 @@ import imigration.api.model.request.ProcessRequest;
 import imigration.api.model.response.CommentResponse;
 import imigration.api.model.response.ProcessMinimalResponse;
 import imigration.api.model.response.ProcessResponse;
+import imigration.api.model.update.ProcessUpdate;
 import imigration.api.repository.AttachmentRepository;
 import imigration.api.repository.CommentRepository;
 import imigration.api.repository.ProcessRepository;
@@ -69,10 +75,17 @@ public class ProcessService {
         return processRepository.findById(id).get();
     }
 
-    public Process findByIdAndOwnerId(
+    public Optional<Process> findByIdAndOwnerId(
         final Integer processId, 
         final Integer ownerId
     ) {
-        return processRepository.findByIdAndOwnerId(processId, ownerId).get();
+        return processRepository.findByIdAndOwnerId(processId, ownerId);
+    }
+
+    @Transactional
+    public void updateProcess(final Integer processId, final ProcessUpdate processUpdate) {
+        final var process = findByIdAndOwnerId(processId, processUpdate.owner())
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Process not found."));
+        process.setStep(processUpdate.step());
     }
 }
