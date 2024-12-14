@@ -87,6 +87,6 @@ public class SignController {
         @PathVariable("uuid") final String uuid, 
         @RequestBody @Valid final SignRequest signRequest
     ) {
-        userService.resetPassword(uuid, signRequest.username(), signRequest.password());
+        userService.resetPassword(uuid, signRequest.username(), signRequest.password(), passwordEncoder);
     }
 }

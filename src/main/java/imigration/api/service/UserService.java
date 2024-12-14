@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatusCode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -74,7 +75,12 @@ public class UserService {
     }
 
     @Transactional
-    public void resetPassword(final String uuid, final String username, final String password) {
+    public void resetPassword(
+        final String uuid,
+        final String username,
+        final String password,
+        final PasswordEncoder passwordEncoder
+    ) {
         final PasswordResetToken passwordResetToken = 
             passwordResetTokenRepository
             .findByToken(uuid)
@@ -87,7 +93,6 @@ public class UserService {
         if (!owner.getUsername().equals(username))
             throw new ResponseStatusException(400, "Invalid token for user.", null);
 
-        //TODO Encode password.
-        owner.setPassword(password);
+        owner.setPassword(passwordEncoder.encode(password));
     }
 }
