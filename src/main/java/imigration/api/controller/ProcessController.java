@@ -47,7 +47,7 @@ public class ProcessController {
 
     @PostMapping("processes")
     public ProcessResponse create(@RequestBody @Valid final ProcessRequest processRequest) {
-        final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         final var process = processService.create(processRequest, owner);
         final var comment = commentService.create(process, owner, processRequest.comment());
         attachmentService.create(owner, comment, processRequest.comment().attachments());
@@ -59,7 +59,7 @@ public class ProcessController {
             @RequestParam(name = "owner", required = false) final Integer ownerId,
             @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable)
     {
-        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         if (ownerId != null 
             && !user.getId().equals(ownerId)
             && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
@@ -74,7 +74,7 @@ public class ProcessController {
         @RequestParam(name = "owner", required = false) final Integer ownerId,
         @PathVariable("id") final Integer id)
     {
-        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         if (ownerId != null 
             && !user.getId().equals(ownerId)
             && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
@@ -90,7 +90,7 @@ public class ProcessController {
         @RequestParam(name = "owner", required = false) final Integer ownerId,
         @RequestBody @Valid final CommentRequest commentRequest)
     {
-        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         Comment comment;
         if (ownerId != null 
             && !user.getId().equals(ownerId)
@@ -112,7 +112,7 @@ public class ProcessController {
         @RequestParam(name = "owner", required = false) final Integer ownerId,
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) 
     {
-        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName());
+        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         if (ownerId != null 
             && !user.getId().equals(ownerId)
             && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
