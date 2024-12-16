@@ -22,7 +22,7 @@ public record ProcessResponse(
 ) {
     public ProcessResponse(final Process process, final Comment comment) {
         this(process.getId(), 
-                process.getCreatedAt(), 
+                process.getCreatedDate(), 
                 process.getStep(), 
                 process.getNationality(), 
                 process.getDateBirth(), 
@@ -34,7 +34,7 @@ public record ProcessResponse(
 
     public ProcessResponse(final Process process, final List<Comment> comments) {
         this(process.getId(), 
-                process.getCreatedAt(), 
+                process.getCreatedDate(), 
                 process.getStep(), 
                 process.getNationality(), 
                 process.getDateBirth(), 

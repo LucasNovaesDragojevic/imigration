@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import imigration.api.constant.Url;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.User;
 import imigration.api.model.request.EmailRequest;
@@ -47,7 +48,7 @@ public class SignController {
         this.defaultSignupAuthorities = this.authorityService.getDefaultSignupAuthorities();
     }
 
-    @PostMapping("signup")
+    @PostMapping(Url.SIGNUP)
     public ResponseEntity<?> signup(@RequestBody @Valid final SignRequest signRequest) {
         final var user = userService.save(new User(signRequest.username(), passwordEncoder.encode(signRequest.password()), defaultSignupAuthorities));
         final var token = userService.generateEmailValidationToken(user);
@@ -55,7 +56,7 @@ public class SignController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("signin")
+    @PostMapping(Url.SIGNIN)
     public JwtResponse signin(@RequestBody @Valid final SignRequest signRequest) {
         final var user = userService.findByUsername(signRequest.username()).get();
         if (passwordEncoder.matches(signRequest.password(), user.getPassword()))
@@ -63,13 +64,13 @@ public class SignController {
         throw new RuntimeException("Invalid username or password.");
     }
 
-    @GetMapping("email-verifications/{uuid}")
-    ResponseEntity<?> emailVerification(@PathVariable("uuid") final String uuid) {
+    @GetMapping(Url.EMAIL_VERIFICATIONS)
+    ResponseEntity<?> emailVerification(@PathVariable("id") final String uuid) {
         userService.verifyEmailValidationToken(uuid);
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("passwords/recovery")
+    @PostMapping(Url.PASSWORDS_RECOVERY)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void passwordsRecovery(@RequestBody @Valid final EmailRequest emailRequest) {
         userService.findByUsername(emailRequest.email())
@@ -81,10 +82,10 @@ public class SignController {
             });
     }
 
-    @PostMapping("passwords/reset/{uuid}")
+    @PostMapping(Url.PASSWORDS_RESET)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void passwordsRecovery(
-        @PathVariable("uuid") final String uuid, 
+        @PathVariable("id") final String uuid, 
         @RequestBody @Valid final SignRequest signRequest
     ) {
         userService.resetPassword(uuid, signRequest.username(), signRequest.password(), passwordEncoder);

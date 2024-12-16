@@ -69,7 +69,7 @@ public class ProcessController {
             && !user.getId().equals(ownerId)
             && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
         {
-            return processService.findAllByOwner(pageable, userService.findById(ownerId));
+            return processService.findAllByOwner(pageable, userService.findById(ownerId).get());
         }
         return processService.findAllByOwner(pageable, user);
     }
@@ -84,7 +84,7 @@ public class ProcessController {
             && !user.getId().equals(ownerId)
             && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
         {
-            return processService.findByIdAndOwner(id, userService.findById(ownerId));
+            return processService.findByIdAndOwner(id, userService.findById(ownerId).get());
         }
         return processService.findByIdAndOwner(id, user);
     }

@@ -2,16 +2,21 @@ package imigration.api.service;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.Set;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.PasswordResetToken;
 import imigration.api.model.entity.User;
 import imigration.api.model.entity.VerificationToken;
+import imigration.api.model.update.UserUpdate;
 import imigration.api.repository.PasswordResetTokenRepository;
 import imigration.api.repository.UserRepository;
 import imigration.api.repository.VerificationTokenRepository;
@@ -37,12 +42,16 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public Page<User> findAll(final Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
+
     public Optional<User> findByUsername(final String username) {
         return userRepository.findByUsername(username);
     }
 
-    public User findById(final Integer id) {
-        return userRepository.findById(id).get();
+    public Optional<User> findById(final Integer id) {
+        return userRepository.findById(id);
     }
 
     public String generateEmailValidationToken(final User user) {
@@ -94,5 +103,13 @@ public class UserService {
             throw new ResponseStatusException(400, "Invalid token for user.", null);
 
         owner.setPassword(passwordEncoder.encode(password));
+    }
+
+    @Transactional
+    public User update(final UserUpdate userUpdate, final Set<Authority> authorities, final User user) {
+        user.setIsEnabled(userUpdate.isEnabled());
+        user.clearAuthorities();
+        user.addAllAuthorities(authorities);
+        return user;
     }
 }

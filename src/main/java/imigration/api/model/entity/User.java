@@ -1,10 +1,13 @@
 package imigration.api.model.entity;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -30,10 +33,21 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue
     private Integer id;
+    
+    @Getter
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private Instant createdDate;
 
+    @LastModifiedDate
+    @Column(nullable = false)
+    private Instant lastModifiedDate;
+
+    @Column(nullable = false)
     private String username;
 
     @Setter
+    @Column(nullable = false)
     private String password;
 
     @Setter
@@ -67,5 +81,13 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return this.isEnabled;
+    }
+
+    public void clearAuthorities() {
+        this.authorities.clear();
+    }
+
+    public boolean addAllAuthorities(final Set<Authority> authorities) {
+        return this.authorities.addAll(authorities);
     }
 }

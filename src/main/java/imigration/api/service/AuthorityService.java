@@ -26,4 +26,8 @@ public class AuthorityService {
         );
     }
 
+    public Set<Authority> findByNameIn(final Set<AuthorityName> authorities) {
+        return authorityRepository.findByNameIn(authorities);
+    }
+
 }

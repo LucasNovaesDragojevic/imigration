@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import imigration.api.constant.Url;
 import imigration.api.filter.AuthFilter;
 import imigration.api.model.enums.AuthorityName;
 
@@ -26,15 +27,20 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
+        return httpSecurity
         .csrf(csrf -> csrf.disable())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(request -> request
-            .requestMatchers(HttpMethod.POST, "/signup").permitAll()
-            .requestMatchers(HttpMethod.POST, "/signin").permitAll()
-            .requestMatchers(HttpMethod.GET, "/email-verifications/{id}").permitAll()
-            .requestMatchers(HttpMethod.POST, "/passwords/recovery").permitAll()
-            .requestMatchers(HttpMethod.POST, "/passwords/reset/{id}").permitAll()
+            //TODO Finish URL migration
+            .requestMatchers(HttpMethod.POST, Url.SIGNIN).permitAll()
+            .requestMatchers(HttpMethod.POST, Url.SIGNUP).permitAll()
+            .requestMatchers(HttpMethod.GET, Url.EMAIL_VERIFICATIONS).permitAll()
+            .requestMatchers(HttpMethod.POST, Url.PASSWORDS_RECOVERY).permitAll()
+            .requestMatchers(HttpMethod.POST, Url.PASSWORDS_RESET).permitAll()
+            .requestMatchers(HttpMethod.GET, Url.USERS).hasAuthority(AuthorityName.USER_READ.name())
+            .requestMatchers(HttpMethod.GET, Url.USER).hasAuthority(AuthorityName.USER_READ.name())
+            .requestMatchers(HttpMethod.PATCH, Url.USER).hasAuthority(AuthorityName.USER_UPDATE.name())
 
             .requestMatchers(HttpMethod.GET, "/processes").hasAuthority(AuthorityName.PROCESS_READ.name())
             .requestMatchers(HttpMethod.POST, "/processes").hasAuthority(AuthorityName.PROCESS_CREATE.name())
@@ -44,10 +50,10 @@ public class SecurityConfiguration {
             .requestMatchers(HttpMethod.POST, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_CREATE.name())
             
             .requestMatchers(HttpMethod.GET, "/comments/{id}/attachments").hasAuthority(AuthorityName.COMMENT_READ.name())
+
             .anyRequest().authenticated()
         )
-        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
-        return httpSecurity.build();
+        .build();
     }
 
     @Bean
