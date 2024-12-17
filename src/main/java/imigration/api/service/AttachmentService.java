@@ -22,7 +22,7 @@ public class AttachmentService {
         return attachmentRepository.saveAll(attachmentsContents.stream().map(content -> new Attachment(content, comment)).toList());
     }
 
-    public List<Attachment> readAllByComment(final Integer commentId) {
+    public List<Attachment> findAllByCommentId(final Integer commentId) {
         return attachmentRepository.findAllByCommentId(commentId);
     }
 }

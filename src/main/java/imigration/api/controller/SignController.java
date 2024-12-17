@@ -3,7 +3,6 @@ package imigration.api.controller;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +38,8 @@ public class SignController {
                             final AuthorityService authorityService,
                             final EmailService emailService,
                             final JwtService jwtService,
-                            final PasswordEncoder passwordEncoder) {
+                            final PasswordEncoder passwordEncoder
+    ) {
         this.userService = userService;
         this.authorityService = authorityService;
         this.emailService = emailService;
@@ -49,15 +49,19 @@ public class SignController {
     }
 
     @PostMapping(Url.SIGNUP)
-    public ResponseEntity<?> signup(@RequestBody @Valid final SignRequest signRequest) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void signup(
+        @RequestBody @Valid final SignRequest signRequest
+    ) {
         final var user = userService.save(new User(signRequest.username(), passwordEncoder.encode(signRequest.password()), defaultSignupAuthorities));
         final var token = userService.generateEmailValidationToken(user);
         emailService.sendVerification(user.getUsername(), token);
-        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(Url.SIGNIN)
-    public JwtResponse signin(@RequestBody @Valid final SignRequest signRequest) {
+    public JwtResponse signin(
+        @RequestBody @Valid final SignRequest signRequest
+    ) {
         final var user = userService.findByUsername(signRequest.username()).get();
         if (passwordEncoder.matches(signRequest.password(), user.getPassword()))
             return new JwtResponse(jwtService.generate(user.getUsername(), user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()));
@@ -65,14 +69,18 @@ public class SignController {
     }
 
     @GetMapping(Url.EMAIL_VERIFICATIONS)
-    ResponseEntity<?> emailVerification(@PathVariable("id") final String uuid) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void emailVerification(
+        @PathVariable(Url.ID) final String uuid
+    ) {
         userService.verifyEmailValidationToken(uuid);
-        return ResponseEntity.noContent().build();
     }
 
     @PostMapping(Url.PASSWORDS_RECOVERY)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void passwordsRecovery(@RequestBody @Valid final EmailRequest emailRequest) {
+    void passwordsRecovery(
+        @RequestBody @Valid final EmailRequest emailRequest
+    ) {
         userService.findByUsername(emailRequest.email())
             .ifPresent(u -> {
                 if (userService.hasPasswordResetToken(u)) 
@@ -85,7 +93,7 @@ public class SignController {
     @PostMapping(Url.PASSWORDS_RESET)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void passwordsRecovery(
-        @PathVariable("id") final String uuid, 
+        @PathVariable(Url.ID) final String uuid, 
         @RequestBody @Valid final SignRequest signRequest
     ) {
         userService.resetPassword(uuid, signRequest.username(), signRequest.password(), passwordEncoder);

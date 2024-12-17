@@ -32,7 +32,6 @@ public class SecurityConfiguration {
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
         .authorizeHttpRequests(request -> request
-            //TODO Finish URL migration
             .requestMatchers(HttpMethod.POST, Url.SIGNIN).permitAll()
             .requestMatchers(HttpMethod.POST, Url.SIGNUP).permitAll()
             .requestMatchers(HttpMethod.GET, Url.EMAIL_VERIFICATIONS).permitAll()
@@ -41,16 +40,13 @@ public class SecurityConfiguration {
             .requestMatchers(HttpMethod.GET, Url.USERS).hasAuthority(AuthorityName.USER_READ.name())
             .requestMatchers(HttpMethod.GET, Url.USER).hasAuthority(AuthorityName.USER_READ.name())
             .requestMatchers(HttpMethod.PATCH, Url.USER).hasAuthority(AuthorityName.USER_UPDATE.name())
-
-            .requestMatchers(HttpMethod.GET, "/processes").hasAuthority(AuthorityName.PROCESS_READ.name())
-            .requestMatchers(HttpMethod.POST, "/processes").hasAuthority(AuthorityName.PROCESS_CREATE.name())
-            .requestMatchers(HttpMethod.PATCH, "/processes/{id}").hasAuthority(AuthorityName.PROCESS_UPDATE.name())
-
-            .requestMatchers(HttpMethod.GET, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_READ.name())
-            .requestMatchers(HttpMethod.POST, "/processes/{id}/comments").hasAuthority(AuthorityName.COMMENT_CREATE.name())
-            
-            .requestMatchers(HttpMethod.GET, "/comments/{id}/attachments").hasAuthority(AuthorityName.COMMENT_READ.name())
-
+            .requestMatchers(HttpMethod.GET, Url.PROCESSES).hasAuthority(AuthorityName.PROCESS_READ.name())
+            .requestMatchers(HttpMethod.GET, Url.PROCESS).hasAuthority(AuthorityName.PROCESS_READ.name())
+            .requestMatchers(HttpMethod.POST, Url.PROCESSES).hasAuthority(AuthorityName.PROCESS_CREATE.name())
+            .requestMatchers(HttpMethod.PATCH, Url.PROCESS).hasAuthority(AuthorityName.PROCESS_UPDATE.name())
+            .requestMatchers(HttpMethod.GET, Url.COMMENTS_BY_PROCESS).hasAuthority(AuthorityName.COMMENT_READ.name())
+            .requestMatchers(HttpMethod.POST, Url.COMMENTS_BY_PROCESS).hasAuthority(AuthorityName.COMMENT_CREATE.name())
+            .requestMatchers(HttpMethod.GET, Url.ATTACHMENTS_BY_COMMENT).hasAuthority(AuthorityName.COMMENT_READ.name())
             .anyRequest().authenticated()
         )
         .build();

@@ -40,7 +40,9 @@ public class UserController {
     }
 
     @GetMapping(Url.USER)
-    UserResponse read(@PathVariable(Url.ID) final Integer id) {
+    UserResponse read(
+        @PathVariable(Url.ID) final Integer id
+    ) {
         return userService.findById(id).map(UserResponse::new).get();
     }
 

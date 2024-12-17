@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import imigration.api.constant.Url;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.Comment;
 import imigration.api.model.enums.AuthorityName;
@@ -43,15 +44,18 @@ public class ProcessController {
     public ProcessController(final ProcessService processService,
                              final CommentService commentService,
                              final AttachmentService attachmentService,
-                             final UserService userService) {
+                             final UserService userService
+    ) {
         this.processService = processService;
         this.commentService = commentService;
         this.attachmentService = attachmentService;
         this.userService = userService;
     }
 
-    @PostMapping("processes")
-    public ProcessResponse create(@RequestBody @Valid final ProcessRequest processRequest) {
+    @PostMapping(Url.PROCESSES)
+    public ProcessResponse create(
+        @RequestBody @Valid final ProcessRequest processRequest
+    ) {
         final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         final var process = processService.create(processRequest, owner);
         final var comment = commentService.create(process, owner, processRequest.comment());
@@ -59,11 +63,11 @@ public class ProcessController {
         return new ProcessResponse(process, comment);
     }
 
-    @GetMapping("processes")
+    @GetMapping(Url.PROCESSES)
     public Page<ProcessMinimalResponse> findAllByOwner(
             @RequestParam(name = "owner", required = false) final Integer ownerId,
-            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable)
-    {
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable
+    ) {
         final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         if (ownerId != null 
             && !user.getId().equals(ownerId)
@@ -74,11 +78,11 @@ public class ProcessController {
         return processService.findAllByOwner(pageable, user);
     }
 
-    @GetMapping("processes/{id}")
+    @GetMapping(Url.PROCESS)
     public ProcessResponse findByIdAndOwner(
-        @RequestParam(name = "owner", required = false) final Integer ownerId,
-        @PathVariable("id") final Integer id)
-    {
+        @PathVariable(Url.ID) final Integer id,
+        @RequestParam(name = "owner", required = false) final Integer ownerId
+    ) {
         final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         if (ownerId != null 
             && !user.getId().equals(ownerId)
@@ -89,10 +93,10 @@ public class ProcessController {
         return processService.findByIdAndOwner(id, user);
     }
 
-    @PatchMapping("processes/{id}")
+    @PatchMapping(Url.PROCESS)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     void updateProcess(
-        @PathVariable("id") final Integer processId,
+        @PathVariable(Url.ID) final Integer processId,
         @RequestBody @Valid final ProcessUpdate processUpdate
     ) {
         final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
@@ -104,12 +108,12 @@ public class ProcessController {
             processService.updateProcess(processId, processUpdate);
     }
 
-    @PostMapping("processes/{id}/comments")
+    @PostMapping(Url.COMMENTS_BY_PROCESS)
     public CommentResponse createComment(
-        @PathVariable("id") final Integer processId,
+        @PathVariable(Url.ID) final Integer processId,
         @RequestParam(name = "owner", required = false) final Integer ownerId,
-        @RequestBody @Valid final CommentRequest commentRequest)
-    {
+        @RequestBody @Valid final CommentRequest commentRequest
+    ) {
         final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         Comment comment;
         if (ownerId != null 
@@ -126,12 +130,12 @@ public class ProcessController {
         return new CommentResponse(comment, attachments);
     }
     
-    @GetMapping("processes/{id}/comments")
+    @GetMapping(Url.COMMENTS_BY_PROCESS)
     public Page<CommentResponse> findAllByProcessIdAndOwnerId(
-        @PathVariable("id") final Integer processId,
+        @PathVariable(Url.ID) final Integer processId,
         @RequestParam(name = "owner", required = false) final Integer ownerId,
-        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable) 
-    {
+        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable
+    ) {
         final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         if (ownerId != null 
             && !user.getId().equals(ownerId)
