@@ -14,7 +14,8 @@ public enum Error {
     E1009("Token expired."), 
     E1010("Token not validated."), 
     E1011("Token invalid for user"), 
-    E1012("User not found.");
+    E1012("User not found."),
+    E1013("Bearer token expired.");
 
     private final String title;
 
