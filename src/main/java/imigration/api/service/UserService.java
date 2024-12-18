@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import imigration.api.exception.UserAlreadyExistsException;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.PasswordResetToken;
 import imigration.api.model.entity.User;
@@ -39,6 +40,8 @@ public class UserService {
     }
 
     public User save(final User user) {
+        if (userRepository.existsByUsername(user.getUsername()))
+            throw new UserAlreadyExistsException();
         return userRepository.save(user);
     }
 
