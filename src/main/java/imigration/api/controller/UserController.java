@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import imigration.api.constant.Url;
+import imigration.api.exception.UserNotFoundException;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.response.UserMinimalResponse;
 import imigration.api.model.response.UserResponse;
@@ -43,7 +44,7 @@ public class UserController {
     UserResponse read(
         @PathVariable(Url.ID) final Integer id
     ) {
-        return userService.findById(id).map(UserResponse::new).get();
+        return userService.findById(id).map(UserResponse::new).orElseThrow(UserNotFoundException::new);
     }
 
     @PatchMapping(Url.USER)
@@ -63,8 +64,8 @@ public class UserController {
                         .filter(a -> authoritiesToUpdate.contains(a.getAuthority()))
                         .map(Authority.class::cast)
                         .collect(Collectors.toSet());
-                    return new UserResponse(userService.update(userUpdate, permitedAuthoritiesToUpdate, u));                
+                    return new UserResponse(userService.update(userUpdate, permitedAuthoritiesToUpdate, u));
                 })
-                .get();
+                .orElseThrow(UserNotFoundException::new);
     }
 }
