@@ -4,6 +4,6 @@ import imigration.api.validator.ValidPassword;
 import jakarta.validation.constraints.Email;
 
 public record SignRequest(
-    @Email String username, 
+    @Email String username,
     @ValidPassword String password
 ) {}

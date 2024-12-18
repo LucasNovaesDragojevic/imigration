@@ -3,6 +3,14 @@ package imigration.api.controller;
 import java.util.Set;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +21,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import imigration.api.constant.Url;
+import imigration.api.exception.UserAccountExpiredException;
+import imigration.api.exception.UserCredentialsExpiredException;
+import imigration.api.exception.UserDisabledException;
+import imigration.api.exception.UserLockedException;
+import imigration.api.exception.UserOrPasswordInvalidException;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.User;
 import imigration.api.model.request.EmailRequest;
@@ -33,12 +46,14 @@ public class SignController {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final Set<Authority> defaultSignupAuthorities;
+    private final AuthenticationManager authenticationManager;
     
     public SignController(final UserService userService,
                             final AuthorityService authorityService,
                             final EmailService emailService,
                             final JwtService jwtService,
-                            final PasswordEncoder passwordEncoder
+                            final PasswordEncoder passwordEncoder,
+                            final AuthenticationManager authenticationManager
     ) {
         this.userService = userService;
         this.authorityService = authorityService;
@@ -46,6 +61,7 @@ public class SignController {
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.defaultSignupAuthorities = this.authorityService.getDefaultSignupAuthorities();
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping(Url.SIGNUP)
@@ -59,13 +75,23 @@ public class SignController {
     }
 
     @PostMapping(Url.SIGNIN)
-    public JwtResponse signin(
+    JwtResponse signin(
         @RequestBody @Valid final SignRequest signRequest
     ) {
-        final var user = userService.findByUsername(signRequest.username()).get();
-        if (passwordEncoder.matches(signRequest.password(), user.getPassword()))
+        try {
+            final var user = (User) authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signRequest.username(), signRequest.password())).getPrincipal();
             return new JwtResponse(jwtService.generate(user.getUsername(), user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList()));
-        throw new RuntimeException("Invalid username or password.");
+        } catch (LockedException e) {
+            throw new UserLockedException();
+        } catch (BadCredentialsException | InternalAuthenticationServiceException e) {
+            throw new UserOrPasswordInvalidException();
+        } catch (AccountExpiredException e) {
+            throw new UserAccountExpiredException();
+        } catch (CredentialsExpiredException e) {
+            throw new UserCredentialsExpiredException();
+        } catch (DisabledException e) {
+            throw new UserDisabledException();
+        }
     }
 
     @GetMapping(Url.EMAIL_VERIFICATIONS)
