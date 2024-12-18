@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import imigration.api.constant.Url;
+import imigration.api.exception.TokenNotValidatedException;
 import imigration.api.exception.UserAccountExpiredException;
 import imigration.api.exception.UserCredentialsExpiredException;
 import imigration.api.exception.UserDisabledException;
@@ -107,13 +108,14 @@ public class SignController {
     void passwordsRecovery(
         @RequestBody @Valid final EmailRequest emailRequest
     ) {
-        userService.findByUsername(emailRequest.email())
-            .ifPresent(u -> {
-                if (userService.hasPasswordResetToken(u)) 
-                    return;
-                final var token = userService.generatePasswordRecoveryToken(u);
-                emailService.sendRecovery(u.getUsername(), token);
-            });
+        userService
+        .findByUsername(emailRequest.email())
+        .ifPresent(u -> {
+            if (userService.hasPasswordResetToken(u)) 
+                throw new TokenNotValidatedException();
+            final var token = userService.generatePasswordRecoveryToken(u);
+            emailService.sendRecovery(u.getUsername(), token);
+        });
     }
 
     @PostMapping(Url.PASSWORDS_RESET)

@@ -6,12 +6,14 @@ import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
+import imigration.api.exception.TokenExpiredException;
+import imigration.api.exception.TokenInvalidForUserException;
+import imigration.api.exception.TokenNotFoundException;
+import imigration.api.exception.TokenValidatedException;
 import imigration.api.exception.UserAlreadyExistsException;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.PasswordResetToken;
@@ -63,9 +65,11 @@ public class UserService {
 
     @Transactional
     public void verifyEmailValidationToken(final String uuid) {
-        final var token = verificationTokenRepository.findByToken(uuid).orElseThrow(() -> new ResponseStatusException(HttpStatusCode.valueOf(404)));
-        if (token.getValidated() || token.getCreatedAt().isBefore(Instant.now().minusSeconds(360)))
-            throw new ResponseStatusException(400, "Invalid token", null);
+        final var token = verificationTokenRepository.findByToken(uuid).orElseThrow(TokenNotFoundException::new);
+        if (token.getValidated())
+            throw new TokenValidatedException();
+        if (token.getCreatedAt().isBefore(Instant.now().minusSeconds(360)))
+            throw new TokenExpiredException();
         token.getOwner().setIsEnabled(Boolean.TRUE);
         token.setValidated(true);
     }
@@ -93,17 +97,18 @@ public class UserService {
         final String password,
         final PasswordEncoder passwordEncoder
     ) {
-        final PasswordResetToken passwordResetToken = 
-            passwordResetTokenRepository
-            .findByToken(uuid)
-            .orElseThrow(() -> new ResponseStatusException(404, "Not found token.", null));
+        final var passwordResetToken = passwordResetTokenRepository.findByToken(uuid).orElseThrow(TokenNotFoundException::new);
 
-        if (passwordResetToken.getValidated() || passwordResetToken.getCreatedAt().isBefore(Instant.now().minusSeconds(360)))
-            throw new ResponseStatusException(400, "Invalid token.", null);
+        if (passwordResetToken.getValidated())
+            throw new TokenValidatedException();
+        
+        if (passwordResetToken.getCreatedAt().isBefore(Instant.now().minusSeconds(360)))
+            throw new TokenExpiredException();
 
         final var owner = passwordResetToken.getOwner();
+
         if (!owner.getUsername().equals(username))
-            throw new ResponseStatusException(400, "Invalid token for user.", null);
+            throw new TokenInvalidForUserException();
 
         owner.setPassword(passwordEncoder.encode(password));
     }
