@@ -49,7 +49,7 @@ public class SignController {
     }
 
     @PostMapping(Url.SIGNUP)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.CREATED)
     void signup(
         @RequestBody @Valid final SignRequest signRequest
     ) {
