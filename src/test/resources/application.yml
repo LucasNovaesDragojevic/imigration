@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: api
+  mail:
+    host: 127.0.0.1
+    port: 3025
+    username: test@email.com
+    password: 1234
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: false
