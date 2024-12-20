@@ -19,7 +19,7 @@ public enum Error {
 
     private final String title;
 
-    Error(final String title) {
+    private Error(final String title) {
         this.title = title;
     }
 

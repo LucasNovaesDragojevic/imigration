@@ -1,11 +1,20 @@
 spring:
   application:
     name: api
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  datasource:
+    url: jdbc:h2:mem:test
+    username: test
+    password: test
+    hikari:
+      schema: PUBLIC
   mail:
     host: 127.0.0.1
     port: 3025
     username: test@email.com
     password: 1234
     properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: false
+      '[mail.smtp.auth]': true
+      '[mail.smtp.starttls.enable]': false

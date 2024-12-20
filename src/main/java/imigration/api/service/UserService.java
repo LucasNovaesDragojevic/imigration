@@ -86,8 +86,9 @@ public class UserService {
                 passwordResetTokenRepository.delete(token);
                 return Boolean.FALSE;
             }
+            return Boolean.TRUE;
         }
-        return Boolean.TRUE;
+        return Boolean.FALSE;
     }
 
     @Transactional
@@ -111,6 +112,7 @@ public class UserService {
             throw new TokenInvalidForUserException();
 
         owner.setPassword(passwordEncoder.encode(password));
+        passwordResetToken.setValidated(Boolean.TRUE);
     }
 
     @Transactional

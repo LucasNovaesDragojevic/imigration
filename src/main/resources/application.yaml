@@ -16,7 +16,7 @@ spring:
     username: example@email.com
     password: example
     properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
+      '[mail.smtp.auth]': true
+      '[mail.smtp.starttls.enable]': true
 jwt:
   secret: ${IMIGRATION_JWT_SECRET}
