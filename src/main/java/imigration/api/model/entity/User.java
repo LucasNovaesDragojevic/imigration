@@ -46,6 +46,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Instant lastModifiedDate;
 
+    @Setter
     @Column(nullable = false)
     private String username;
 
@@ -55,7 +56,19 @@ public class User implements UserDetails {
 
     @Setter
     @Column(nullable = false)
-    private Boolean isEnabled = Boolean.FALSE;
+    private Boolean accountNonExpired = Boolean.TRUE;
+
+    @Setter
+    @Column(nullable = false)
+    private Boolean accountNonLocked = Boolean.TRUE;
+
+    @Setter
+    @Column(nullable = false)
+    private Boolean credentialsNonExpired = Boolean.TRUE;
+
+    @Setter
+    @Column(nullable = false)
+    private Boolean enabled = Boolean.FALSE;
 
     @ManyToMany(fetch = FetchType.EAGER)
     private final Set<Authority> authorities = new HashSet<>();
@@ -82,8 +95,24 @@ public class User implements UserDetails {
     }
 
     @Override
+    public boolean isAccountNonExpired() {
+        return this.accountNonExpired;
+    }
+
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.credentialsNonExpired;
+    }
+
+    @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        return this.enabled;
     }
 
     public void clearAuthorities() {

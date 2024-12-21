@@ -12,8 +12,7 @@ public enum Error {
     E1007("Token not found."),
     E1008("Token validated."),
     E1009("Token expired."), 
-    E1010("Token not validated."), 
-    E1011("Token invalid for user"), 
+    E1010("Token not validated."),
     E1012("User not found."),
     E1013("Bearer token expired.");
 

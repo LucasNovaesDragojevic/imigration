@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import imigration.api.exception.TokenExpiredException;
-import imigration.api.exception.TokenInvalidForUserException;
 import imigration.api.exception.TokenNotFoundException;
 import imigration.api.exception.TokenValidatedException;
 import imigration.api.exception.UserAlreadyExistsException;
@@ -70,7 +69,7 @@ public class UserService {
             throw new TokenValidatedException();
         if (token.getCreatedAt().isBefore(Instant.now().minusSeconds(360)))
             throw new TokenExpiredException();
-        token.getOwner().setIsEnabled(Boolean.TRUE);
+        token.getOwner().setEnabled(Boolean.TRUE);
         token.setValidated(true);
     }
 
@@ -94,7 +93,6 @@ public class UserService {
     @Transactional
     public void resetPassword(
         final String uuid,
-        final String username,
         final String password,
         final PasswordEncoder passwordEncoder
     ) {
@@ -108,16 +106,13 @@ public class UserService {
 
         final var owner = passwordResetToken.getOwner();
 
-        if (!owner.getUsername().equals(username))
-            throw new TokenInvalidForUserException();
-
         owner.setPassword(passwordEncoder.encode(password));
         passwordResetToken.setValidated(Boolean.TRUE);
     }
 
     @Transactional
     public User update(final UserUpdate userUpdate, final Set<Authority> authorities, final User user) {
-        user.setIsEnabled(userUpdate.isEnabled());
+        user.setEnabled(userUpdate.isEnabled());
         user.clearAuthorities();
         user.addAllAuthorities(authorities);
         return user;

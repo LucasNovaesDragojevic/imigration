@@ -30,6 +30,7 @@ import imigration.api.exception.UserOrPasswordInvalidException;
 import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.User;
 import imigration.api.model.request.EmailRequest;
+import imigration.api.model.request.PasswordRequest;
 import imigration.api.model.request.SignRequest;
 import imigration.api.model.response.JwtResponse;
 import imigration.api.service.AuthorityService;
@@ -120,10 +121,10 @@ public class SignController {
 
     @PostMapping(Url.PASSWORDS_RESET)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void passwordsRecovery(
+    void passwordsReset(
         @PathVariable(Url.ID) final String uuid, 
-        @RequestBody @Valid final SignRequest signRequest
+        @RequestBody @Valid final PasswordRequest passwordRequest
     ) {
-        userService.resetPassword(uuid, signRequest.username(), signRequest.password(), passwordEncoder);
+        userService.resetPassword(uuid, passwordRequest.password(), passwordEncoder);
     }
 }
