@@ -12,6 +12,6 @@ public record ProcessMinimalResponse(
     Step step
 ) {
     public ProcessMinimalResponse(final Process process) {
-        this(process.getId(), LocalDateTime.ofInstant(process.getCreatedDate(), ZoneId.systemDefault()), process.getStep());
+        this(process.getId(), LocalDateTime.ofInstant(process.getCreatedAt(), ZoneId.systemDefault()), process.getStep());
     }
 }

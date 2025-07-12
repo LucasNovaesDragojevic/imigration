@@ -2,12 +2,15 @@ package imigration.api.controller;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,6 +59,11 @@ public class UserController {
                 .findById(id)
                 .map(u -> {
                     final var authoritiesToUpdate = userUpdate.authorities();
+
+                    if (CollectionUtils.isEmpty(authoritiesToUpdate)) {
+                        return new UserResponse(userService.update(userUpdate, new HashSet<>(), u));
+                    }
+
                     final var permitedAuthoritiesToUpdate = 
                         SecurityContextHolder.getContext()
                         .getAuthentication()

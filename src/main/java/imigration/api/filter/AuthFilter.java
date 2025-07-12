@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -55,12 +56,26 @@ public class AuthFilter extends OncePerRequestFilter {
                         final var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(u, null, u.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                     });
+            } catch (final JWTDecodeException e) {
+                makeBearerInvalidTokenResponse(request, response);
             } catch (final TokenExpiredException e) {
                 makeBearerTokeExpiredResponse(request, response);
                 return;
             }
         }
         filterChain.doFilter(request, response);
+    }
+
+    private void makeBearerInvalidTokenResponse(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
+        response.reset();
+        response.setStatus(HttpStatus.FORBIDDEN.value());
+        response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+        final var description = Error.E1014.getTitle();
+        final var body = ProblemDetail.forStatusAndDetail(FORBIDDEN, description);
+        body.setTitle(description);
+        body.setInstance(URI.create(request.getRequestURI().toString()));
+        body.setProperty("code", Error.E1014);
+        response.getOutputStream().write(objectMapper.writeValueAsString(body).getBytes());
     }
 
     private void makeBearerTokeExpiredResponse(final HttpServletRequest request, final HttpServletResponse response) throws IOException {

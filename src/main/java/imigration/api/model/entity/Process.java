@@ -32,11 +32,11 @@ public class Process {
     @Getter
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private Instant createdDate;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(nullable = false)
-    private Instant lastModifiedDate;
+    private Instant updatedAt;
 
     @Setter
     @ManyToOne(optional = false)

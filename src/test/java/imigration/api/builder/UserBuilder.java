@@ -1,7 +1,10 @@
 package imigration.api.builder;
 
+import java.util.Set;
+
 import org.springframework.stereotype.Component;
 
+import imigration.api.model.entity.Authority;
 import imigration.api.model.entity.User;
 
 @Component
@@ -44,7 +47,30 @@ public class UserBuilder {
         return this;
     }
 
+    public UserBuilder withAuthorities(final Set<Authority> authorities) {
+        this.user.addAllAuthorities(authorities);
+        return this;
+    }
+
     public User build() {
         return this.user;
+    }
+
+    public User buildRootUser(final String password, final Set<Authority> authorities) {
+        return this.user()
+                    .withUsername("root@email.com")
+                    .withPassword(password)
+                    .withEnabled(true)
+                    .withAuthorities(authorities)
+                    .build();
+    }
+
+    public User buildRandomUser(final String password, final Set<Authority> authorities) {
+        return this.user()
+                    .withUsername("user" + System.currentTimeMillis() + "@email.com")
+                    .withPassword(password)
+                    .withEnabled(true)
+                    .withAuthorities(authorities)
+                    .build();
     }
 }

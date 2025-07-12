@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,11 +20,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import imigration.api.constant.Url;
 import imigration.api.model.entity.Authority;
-import imigration.api.model.entity.Comment;
 import imigration.api.model.enums.AuthorityName;
-import imigration.api.model.request.CommentRequest;
 import imigration.api.model.request.ProcessRequest;
-import imigration.api.model.response.CommentResponse;
 import imigration.api.model.response.ProcessMinimalResponse;
 import imigration.api.model.response.ProcessResponse;
 import imigration.api.model.update.ProcessUpdate;
@@ -53,13 +51,16 @@ public class ProcessController {
     }
 
     @PostMapping(Url.PROCESSES)
+    @ResponseStatus(HttpStatus.CREATED)
     public ProcessResponse create(
         @RequestBody @Valid final ProcessRequest processRequest
     ) {
         final var owner = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
         final var process = processService.create(processRequest, owner);
         final var comment = commentService.create(process, owner, processRequest.comment());
-        attachmentService.create(owner, comment, processRequest.comment().attachments());
+        if (!CollectionUtils.isEmpty(processRequest.comment().attachments())) {
+            attachmentService.create(owner, comment, processRequest.comment().attachments());
+        }
         return new ProcessResponse(process, comment);
     }
 
@@ -104,45 +105,9 @@ public class ProcessController {
         if (user.getId().equals(processUpdate.owner()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User cannot review yourself process.");
 
-        if (user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
-            processService.updateProcess(processId, processUpdate);
-    }
-
-    @PostMapping(Url.COMMENTS_BY_PROCESS)
-    public CommentResponse createComment(
-        @PathVariable(Url.ID) final Integer processId,
-        @RequestParam(name = "owner", required = false) final Integer ownerId,
-        @RequestBody @Valid final CommentRequest commentRequest
-    ) {
-        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
-        Comment comment;
-        if (ownerId != null 
-            && !user.getId().equals(ownerId)
-            && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
-        {
-            comment = commentService.create(processService.findByIdAndOwnerId(processId, ownerId).get(), user, commentRequest);
-        }
-        else 
-        {
-            comment = commentService.create(processService.findByIdAndOwnerId(processId, user.getId()).get(), user, commentRequest);
-        }
-        final var attachments = attachmentService.create(user, comment, commentRequest.attachments());
-        return new CommentResponse(comment, attachments);
-    }
-    
-    @GetMapping(Url.COMMENTS_BY_PROCESS)
-    public Page<CommentResponse> findAllByProcessIdAndOwnerId(
-        @PathVariable(Url.ID) final Integer processId,
-        @RequestParam(name = "owner", required = false) final Integer ownerId,
-        @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = DESC) final Pageable pageable
-    ) {
-        final var user = userService.findByUsername(SecurityContextHolder.getContext().getAuthentication().getName()).get();
-        if (ownerId != null 
-            && !user.getId().equals(ownerId)
-            && user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
-        {
-            return processService.findAllByProcessIdAndProcessOwnerId(processId, ownerId, pageable);
-        }
-        return processService.findAllByProcessIdAndProcessOwnerId(processId, user.getId(), pageable);
+        if (!user.getAuthorities().contains(new Authority(AuthorityName.PROCESS_REVIEWER)))
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User need be reviewer to update process.");
+            
+        processService.updateProcess(processId, processUpdate);
     }
 }

@@ -46,13 +46,4 @@ public class Comment {
     @Setter
     @ManyToOne(optional = false)
     private Process process;
-
-    // @Getter
-    // @OneToMany(cascade = CascadeType.ALL)
-    // @JoinColumn(name = "comment_id", nullable = false, updatable = false)
-    // private List<Attachment> attachments = new ArrayList<>();
-
-    // public void addAttachments(final List<Attachment> attachments) {
-    //     this.attachments.addAll(attachments);
-    // }
 }

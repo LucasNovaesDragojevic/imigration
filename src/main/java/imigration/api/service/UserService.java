@@ -112,7 +112,7 @@ public class UserService {
 
     @Transactional
     public User update(final UserUpdate userUpdate, final Set<Authority> authorities, final User user) {
-        user.setEnabled(userUpdate.isEnabled());
+        Optional.ofNullable(userUpdate.isEnabled()).ifPresent(user::setEnabled);
         user.clearAuthorities();
         user.addAllAuthorities(authorities);
         return user;

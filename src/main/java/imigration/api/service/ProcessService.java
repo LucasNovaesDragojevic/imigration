@@ -1,14 +1,11 @@
 package imigration.api.service;
 
-import java.util.Optional;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
+import imigration.api.exception.ProcessNotFoundException;
 import imigration.api.model.entity.Process;
 import imigration.api.model.entity.User;
 import imigration.api.model.enums.Step;
@@ -75,17 +72,13 @@ public class ProcessService {
         return processRepository.findById(id).get();
     }
 
-    public Optional<Process> findByIdAndOwnerId(
-        final Integer processId, 
-        final Integer ownerId
-    ) {
-        return processRepository.findByIdAndOwnerId(processId, ownerId);
+    public Process findByIdAndOwnerId(final Integer processId, final Integer ownerId) {
+        return processRepository.findByIdAndOwnerId(processId, ownerId).orElseThrow(ProcessNotFoundException::new);
     }
 
     @Transactional
     public void updateProcess(final Integer processId, final ProcessUpdate processUpdate) {
-        final var process = findByIdAndOwnerId(processId, processUpdate.owner())
-                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Process not found."));
+        final var process = findByIdAndOwnerId(processId, processUpdate.owner());
         process.setStep(processUpdate.step());
     }
 }

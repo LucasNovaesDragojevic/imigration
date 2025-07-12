@@ -12,5 +12,6 @@ public record ProcessRequest(
     @NotBlank String passport, 
     String govId, 
     String driverLicense,
+    @NotNull
     CommentRequest comment
 ) {}
